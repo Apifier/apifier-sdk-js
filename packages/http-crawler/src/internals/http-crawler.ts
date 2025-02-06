@@ -477,7 +477,7 @@ export class HttpCrawler<
         const extensionOptions = extension.getCrawlerOptions();
 
         for (const [key, value] of Object.entries(extensionOptions)) {
-            const isConfigurable = this.hasOwnProperty(key);
+            const isConfigurable = Object.hasOwn(this, key);
             const originalType = typeof this[key as keyof this];
             const extensionType = typeof value; // What if we want to null something? It is really needed?
             const isSameType = originalType === extensionType || value == null; // fast track for deleting keys

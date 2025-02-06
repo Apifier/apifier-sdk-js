@@ -166,7 +166,7 @@ describe('RequestList', () => {
         const spy = vitest.spyOn(RequestList.prototype as any, '_downloadListOfUrls');
         const list1 = ['https://example.com', 'https://google.com', 'https://wired.com'];
         const list2 = ['https://another.com', 'https://page.com'];
-        spy.mockImplementationOnce(() => new Promise((resolve) => setTimeout(resolve(list1) as any, 100)) as any);
+        spy.mockImplementationOnce(() => new Promise((resolve) => setTimeout(() => resolve(list1) as any, 100)) as any);
         spy.mockResolvedValueOnce(list2);
 
         const requestList = await RequestList.open({

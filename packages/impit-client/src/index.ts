@@ -106,7 +106,7 @@ export class ImpitHttpClient implements BaseHttpClient {
         });
 
         if (this.followRedirects && response.status >= 300 && response.status < 400) {
-            const location = response.headers.location;
+            const { location } = response.headers;
 
             if (!location) {
                 throw new Error('Redirect response missing location header.');

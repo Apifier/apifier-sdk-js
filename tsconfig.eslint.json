@@ -1,15 +1,15 @@
 {
 	"extends": "./tsconfig.json",
 	"include": [
-		"packages/**/src/**/*.js",
-		"packages/**/src/**/*.ts",
-		"scripts/**/*.js",
+		"packages/**/*.ts",
+		"packages/**/*.mjs",
+		"packages/**/*.js",
 		"scripts/**/*.ts",
+		"scripts/**/*.js",
+		"scripts/**/*.mjs",
+		"test/**/*.ts",
 		"test/**/*.js",
 		"test/**/*.mjs",
-		"test/**/*.ts",
-		"packages/**/test/**/*.js",
-		"packages/**/test/**/*.ts",
 		"docs/**/*.ts",
 		"vitest.config.ts"
 	]

@@ -30,7 +30,7 @@ export const maybeStringify = <T>(value: T, options: { contentType?: string }) =
         } catch (e) {
             const error = e as Error;
             // Give more meaningful error message
-            if (error.message?.indexOf('Invalid string length') >= 0) {
+            if (error.message?.includes('Invalid string length')) {
                 error.message = 'Object is too large';
             }
             throw new Error(`The "value" parameter cannot be stringified to JSON: ${error.message}`);

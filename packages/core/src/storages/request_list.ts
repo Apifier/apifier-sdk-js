@@ -818,7 +818,7 @@ export class RequestList implements IRequestList {
         this._ensureUniqueKeyValid(uniqueKey);
 
         // Skip requests with duplicate uniqueKey
-        if (!this.uniqueKeyToIndex.hasOwnProperty(uniqueKey)) {
+        if (!Object.hasOwn(this.uniqueKeyToIndex, uniqueKey)) {
             this.uniqueKeyToIndex[uniqueKey] = this.requests.length;
             this.requests.push(request);
         } else if (this.keepDuplicateUrls) {

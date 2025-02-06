@@ -396,7 +396,7 @@ export async function cacheResponses(
                     body: buffer,
                 };
             }
-        } catch (e) {
+        } catch {
             // ignore errors, usually means that buffer is empty or broken connection
         }
     });
@@ -504,6 +504,8 @@ export async function gotoExtended(
             if (!isEmpty(headers)) overrides.headers = headers;
             await removeInterceptRequestHandler(page, interceptRequestHandler);
             await interceptedRequest.continue(overrides);
+
+            return undefined;
         };
 
         await addInterceptRequestHandler(page, interceptRequestHandler);

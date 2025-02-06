@@ -21,7 +21,7 @@ class ReadableStreamGenerator {
         return buffer;
     }
 
-    static getReadableStream(size: number, seed: number, throttle: number = 0): ReadableStream {
+    static getReadableStream(size: number, seed: number, throttle = 0): ReadableStream {
         let bytesRead = 0;
         const stream = new ReadableStream({
             start: async (controller) => {

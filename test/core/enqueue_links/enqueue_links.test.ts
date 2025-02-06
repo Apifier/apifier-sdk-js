@@ -540,9 +540,9 @@ describe('enqueueLinks()', () => {
                     selector: '.click',
                     pseudoUrls,
                     transformRequestFunction: (request) => {
-                        if (/example\.com/.test(request.url)) {
+                        if (request.url.includes('example.com')) {
                             request.method = 'POST';
-                        } else if (/cool\.com/.test(request.url)) {
+                        } else if (request.url.includes('cool.com')) {
                             request.userData!.foo = 'bar';
                         }
                         return request;
@@ -936,9 +936,9 @@ describe('enqueueLinks()', () => {
                     selector: '.click',
                     pseudoUrls,
                     transformRequestFunction: (request) => {
-                        if (/example\.com/.test(request.url)) {
+                        if (request.url.includes('example.com')) {
                             request.method = 'POST';
-                        } else if (/cool\.com/.test(request.url)) {
+                        } else if (request.url.includes('cool.com')) {
                             request.userData!.foo = 'bar';
                         }
                         return request;

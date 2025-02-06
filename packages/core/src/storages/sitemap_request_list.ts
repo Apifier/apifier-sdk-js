@@ -158,7 +158,7 @@ export class SitemapRequestList implements IRequestList {
      *
      * If the loading is aborted and all the requests are handled, `isFinished()` will return `true`.
      */
-    private abortLoading: boolean = false;
+    private abortLoading = false;
 
     /** Number of URLs that were marked as handled */
     private handledUrlCount = 0;
@@ -167,7 +167,7 @@ export class SitemapRequestList implements IRequestList {
 
     private store?: KeyValueStore;
 
-    private closed: boolean = false;
+    private closed = false;
 
     /**
      * Proxy URL to be used for sitemap loading.
@@ -278,7 +278,8 @@ export class SitemapRequestList implements IRequestList {
     private async pushNextUrl(url: string | null) {
         return new Promise<void>((resolve) => {
             if (this.closed || (url && !this.isUrlMatchingPatterns(url))) {
-                return resolve();
+                resolve();
+                return;
             }
 
             if (!this.urlQueueStream.push(url)) {
@@ -301,7 +302,8 @@ export class SitemapRequestList implements IRequestList {
     private async readNextUrl(): Promise<string | null> {
         return new Promise((resolve) => {
             if (this.closed) {
-                return resolve(null);
+                resolve(null);
+                return;
             }
 
             const result = this.urlQueueStream.read();
