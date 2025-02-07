@@ -1,6 +1,8 @@
 import fs from 'node:fs/promises';
 import { setTimeout } from 'node:timers/promises';
 
+import { Configuration } from '@crawlee/core';
+
 /**
  * Default regular expression to match URLs in a string that may be plain text, JSON, CSV or other. It supports common URL characters
  * and does not support URLs containing commas or spaces. The URLs also may contain Unicode letters (not symbols).
@@ -41,6 +43,19 @@ export async function isDocker(forceReset?: boolean): Promise<boolean> {
     if (!isDockerPromiseCache || forceReset) isDockerPromiseCache = createIsDockerPromise();
 
     return isDockerPromiseCache;
+}
+
+/**
+ * Returns a `Promise` that resolves to true if the code is running in a containerised enviroment or the containerised config var is set.
+ */
+export async function isContainerised(forceReset?: boolean): Promise<boolean> {
+    const config = Configuration.getGlobalConfig();
+    const containerised = config.get('containerised');
+    if (containerised === true || containerised === false) {
+        return containerised;
+    }
+
+    return (await isDocker(forceReset)) || !!process.env.KUBERNETES_SERVICE_HOST;
 }
 
 /**
