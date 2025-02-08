@@ -85,24 +85,24 @@ export class LocalEventManager extends EventManager {
         // };
 
         try {
-          const usedCpuRatio = await this._getCpuInfo()
+            const usedCpuRatio = await this._getCpuInfo();
 
-          return {
-            cpuCurrentUsage: usedCpuRatio * 100,
-            isCpuOverloaded: usedCpuRatio > options.maxUsedCpuRatio,
-          };
-      } catch (err) {
-          log.exception(err as Error, 'Cpu snapshot failed.');
-          return {};
-      }
+            return {
+                cpuCurrentUsage: usedCpuRatio * 100,
+                isCpuOverloaded: usedCpuRatio > options.maxUsedCpuRatio,
+            };
+        } catch (err) {
+            log.exception(err as Error, 'Cpu snapshot failed.');
+            return {};
+        }
     }
 
     /**
      * Helper method for easier mocking.
      */
-        private async _getCpuInfo() {
-          return getCpuInfo();
-      }
+    private async _getCpuInfo() {
+        return getCpuInfo();
+    }
 
     private async createMemoryInfo() {
         try {

@@ -55,7 +55,7 @@ export async function isContainerised(forceReset?: boolean): Promise<boolean> {
     if (containerised !== undefined) {
         return containerised;
     }
-     // else check isDocker and the KUBERNETES_SERVICE_HOST env var (should cover most containerised enviroments)
+    // else check isDocker and the KUBERNETES_SERVICE_HOST env var (should cover most containerised enviroments)
     return (await isDocker(forceReset)) || !!process.env.KUBERNETES_SERVICE_HOST;
 }
 

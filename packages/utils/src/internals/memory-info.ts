@@ -100,7 +100,7 @@ export async function getMemoryInfo(): Promise<MemoryInfo> {
     } else if (isContainerisedVar) {
         // When running inside a container, use container memory limits
 
-        const cgroupsVersion = await getCgroupsVersion()
+        const cgroupsVersion = await getCgroupsVersion();
 
         try {
             let [totalBytesStr, usedBytesStr] = await Promise.all([
