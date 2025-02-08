@@ -4,8 +4,7 @@ import { freemem, totalmem } from 'node:os';
 
 import log from '@apify/log';
 
-import { getCgroupsVersion } from './cGroupsVersion';
-import { isContainerised } from './general';
+import { getCgroupsVersion, isContainerised } from './general';
 import { psTree } from './psTree';
 
 const MEMORY_FILE_PATHS = {

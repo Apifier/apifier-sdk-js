@@ -24,6 +24,7 @@ type ProcessInfoStringKeys = {
  *                      Defaults to false.
  */
 export async function psTree(pid: number | string, includeRoot: boolean = false): Promise<ProcessInfo[]> {
+    const start = process.hrtime.bigint();
     return new Promise((resolve, reject) => {
         if (typeof pid === 'number') {
             pid = pid.toString();
@@ -124,7 +125,6 @@ export async function psTree(pid: number | string, includeRoot: boolean = false)
                     children.push(proc);
                 }
             });
-
             resolve(children);
         });
 

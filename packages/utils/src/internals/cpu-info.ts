@@ -1,8 +1,7 @@
 import { readFile } from 'node:fs/promises';
-import { cpus } from 'node:os';
+import os from 'node:os'
 
-import { getCgroupsVersion } from './cGroupsVersion';
-import { isContainerised } from './general';
+import { getCgroupsVersion, isContainerised } from './general';
 
 const CPU_FILE_PATHS = {
     STAT: {
@@ -32,7 +31,7 @@ const previousTicks = { idle: 0, total: 0 };
  * @returns
  */
 function getCurrentCpuTicks() {
-    const cpusCores = cpus();
+    const cpusCores = os.cpus();
     const ticks = cpusCores.reduce(
         (acc, cpu) => {
             const cpuTimes = Object.values(cpu.times);
@@ -184,11 +183,12 @@ export async function getCpuInfo(): Promise<number> {
 
         previousSample = sample;
 
-        const numCpus = cpus().length;
+        const numCpus = os.cpus().length;
 
         // Calculate the CPU usage percentage.
         return ((containerDelta / systemDelta) * numCpus * 100) / cpuAllowance;
     }
     // bare metal cpu limit
-    return getCurrentCpuTicks();
+    const ticks = getCurrentCpuTicks();
+    return ticks
 }

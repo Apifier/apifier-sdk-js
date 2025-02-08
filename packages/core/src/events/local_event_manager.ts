@@ -47,20 +47,6 @@ export class LocalEventManager extends EventManager {
         intervalCallback();
     }
 
-    // private getCurrentCpuTicks() {
-    //     const cpus = os.cpus();
-    //     return cpus.reduce(
-    //         (acc, cpu) => {
-    //             const cpuTimes = Object.values(cpu.times);
-    //             return {
-    //                 idle: acc.idle + cpu.times.idle,
-    //                 total: acc.total + cpuTimes.reduce((sum, num) => sum + num),
-    //             };
-    //         },
-    //         { idle: 0, total: 0 },
-    //     );
-    // }
-
     /**
      * Creates a SystemInfo object based on local metrics.
      */
@@ -73,17 +59,6 @@ export class LocalEventManager extends EventManager {
     }
 
     private async createCpuInfo(options: { maxUsedCpuRatio: number }) {
-        // const ticks = this.getCurrentCpuTicks();
-        // const idleTicksDelta = ticks.idle - this.previousTicks!.idle;
-        // const totalTicksDelta = ticks.total - this.previousTicks!.total;
-        // const usedCpuRatio = totalTicksDelta ? 1 - idleTicksDelta / totalTicksDelta : 0;
-        // Object.assign(this.previousTicks, ticks);
-
-        // return {
-        //     cpuCurrentUsage: usedCpuRatio * 100,
-        //     isCpuOverloaded: usedCpuRatio > options.maxUsedCpuRatio,
-        // };
-
         try {
             const usedCpuRatio = await this._getCpuInfo();
 

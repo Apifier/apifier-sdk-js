@@ -1,4 +1,4 @@
-import fs from 'node:fs/promises';
+import fs, { access } from 'node:fs/promises';
 import { setTimeout } from 'node:timers/promises';
 
 import { Configuration } from '@crawlee/core';
@@ -57,6 +57,25 @@ export async function isContainerised(forceReset?: boolean): Promise<boolean> {
     }
     // else check isDocker and the KUBERNETES_SERVICE_HOST env var (should cover most containerised enviroments)
     return (await isDocker(forceReset)) || !!process.env.KUBERNETES_SERVICE_HOST;
+}
+
+let _cgroupsVersion: 'V1' | 'V2';
+/**
+ * gets the cgroups version by checking for a file at /sys/fs/cgroup/memory
+ * @returns "V1" or "V2" for the version
+ */
+export async function getCgroupsVersion() {
+    if (_cgroupsVersion) {
+        return _cgroupsVersion;
+    }
+    _cgroupsVersion = 'V1';
+    try {
+        // If this directory does not exists, assume the container is using cgroups V2
+        await access('/sys/fs/cgroup/memory/');
+    } catch {
+        _cgroupsVersion = 'V2';
+    }
+    return _cgroupsVersion;
 }
 
 /**

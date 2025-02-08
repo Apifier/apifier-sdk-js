@@ -313,7 +313,7 @@ describe('Snapshotter', () => {
         });
         await snapshotter.start();
         await config.getEventManager().init();
-        await sleep(1e3);
+        await sleep(1.5e3);
         await snapshotter.stop();
         await config.getEventManager().close();
         const memorySnapshots = snapshotter.getMemorySample();
