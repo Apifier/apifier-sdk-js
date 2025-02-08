@@ -161,18 +161,6 @@ export interface ConfigurationOptions {
      * Alternative to `CRAWLEE_PERSIST_STORAGE` environment variable.
      */
     persistStorage?: boolean;
-
-    /**
-     * Defines if crawlee is running in a containerised enviroment.
-     * This affects how crawlee determines its resource limits.
-     * (os calls vs cGroup file checks)
-     *
-     * If unset, this will be determined using heuristics of containerised enviroments
-     *  - A /.dockerenv file
-     *  - "docker" in the /proc/self/cgroup file
-     *  - The "KUBERNETES_SERVICE_HOST" enviroment variable
-     */
-    containerised?: boolean;
 }
 
 /**
@@ -238,7 +226,6 @@ export interface ConfigurationOptions {
  * `defaultBrowserPath` | `CRAWLEE_DEFAULT_BROWSER_PATH` | -
  * `disableBrowserSandbox` | `CRAWLEE_DISABLE_BROWSER_SANDBOX` | -
  * `availableMemoryRatio` | `CRAWLEE_AVAILABLE_MEMORY_RATIO` | `0.25`
- * `containerised` | `CRAWLEE_CONTAINERISED` | -
  */
 export class Configuration {
     /**
@@ -260,7 +247,6 @@ export class Configuration {
         CRAWLEE_DISABLE_BROWSER_SANDBOX: 'disableBrowserSandbox',
         CRAWLEE_LOG_LEVEL: 'logLevel',
         CRAWLEE_PERSIST_STORAGE: 'persistStorage',
-        CRAWLEE_CONTAINERISED: 'containerised',
     };
 
     protected static BOOLEAN_VARS = [
@@ -269,7 +255,6 @@ export class Configuration {
         'xvfb',
         'disableBrowserSandbox',
         'persistStorage',
-        'containerised',
     ];
 
     protected static INTEGER_VARS = ['memoryMbytes', 'persistStateIntervalMillis', 'systemInfoIntervalMillis'];
