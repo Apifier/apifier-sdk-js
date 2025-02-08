@@ -1,9 +1,10 @@
 import { execSync } from 'node:child_process';
-import { access, readFile } from 'node:fs/promises';
+import { readFile } from 'node:fs/promises';
 import { freemem, totalmem } from 'node:os';
 
 import log from '@apify/log';
 
+import { getCgroupsVersion } from './cGroupsVersion';
 import { isContainerised } from './general';
 import { psTree } from './psTree';
 
@@ -41,7 +42,7 @@ export interface MemoryInfo {
 /**
  * Returns memory statistics of the process and the system, see {@apilink MemoryInfo}.
  *
- * If the process runs inside of Docker, the `getMemoryInfo` gets container memory limits,
+ * If the process runs inside of a container, the `getMemoryInfo` gets container memory limits,
  * otherwise it gets system memory limits.
  *
  * Beware that the function is quite inefficient because it spawns a new process.
@@ -97,16 +98,9 @@ export async function getMemoryInfo(): Promise<MemoryInfo> {
 
         log.debug(`lambda size of ${totalBytes} with ${freeBytes} free bytes`);
     } else if (isContainerisedVar) {
-        // When running inside Docker container, use container memory limits
+        // When running inside a container, use container memory limits
 
-        // Check whether cgroups V1 or V2 is used
-        let cgroupsVersion: keyof typeof MEMORY_FILE_PATHS.TOTAL = 'V1';
-        try {
-            // If this directory does not exists, assume docker is using cgroups V2
-            await access('/sys/fs/cgroup/memory/');
-        } catch {
-            cgroupsVersion = 'V2';
-        }
+        const cgroupsVersion = await getCgroupsVersion()
 
         try {
             let [totalBytesStr, usedBytesStr] = await Promise.all([

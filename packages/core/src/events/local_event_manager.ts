@@ -1,14 +1,12 @@
-import os from 'node:os';
-
 import log from '@apify/log';
 import { betterClearInterval, betterSetInterval } from '@apify/utilities';
-import { getMemoryInfo } from '@crawlee/utils';
+import { getCpuInfo, getMemoryInfo } from '@crawlee/utils';
 
 import { EventManager, EventType } from './event_manager';
 import type { SystemInfo } from '../autoscaling';
 
 export class LocalEventManager extends EventManager {
-    private previousTicks = { idle: 0, total: 0 };
+    // private previousTicks = { idle: 0, total: 0 };
 
     /**
      * Initializes the EventManager and sets up periodic `systemInfo` and `persistState` events.
@@ -49,19 +47,19 @@ export class LocalEventManager extends EventManager {
         intervalCallback();
     }
 
-    private getCurrentCpuTicks() {
-        const cpus = os.cpus();
-        return cpus.reduce(
-            (acc, cpu) => {
-                const cpuTimes = Object.values(cpu.times);
-                return {
-                    idle: acc.idle + cpu.times.idle,
-                    total: acc.total + cpuTimes.reduce((sum, num) => sum + num),
-                };
-            },
-            { idle: 0, total: 0 },
-        );
-    }
+    // private getCurrentCpuTicks() {
+    //     const cpus = os.cpus();
+    //     return cpus.reduce(
+    //         (acc, cpu) => {
+    //             const cpuTimes = Object.values(cpu.times);
+    //             return {
+    //                 idle: acc.idle + cpu.times.idle,
+    //                 total: acc.total + cpuTimes.reduce((sum, num) => sum + num),
+    //             };
+    //         },
+    //         { idle: 0, total: 0 },
+    //     );
+    // }
 
     /**
      * Creates a SystemInfo object based on local metrics.
@@ -69,23 +67,42 @@ export class LocalEventManager extends EventManager {
     private async createSystemInfo(options: { maxUsedCpuRatio: number }) {
         return {
             createdAt: new Date(),
-            ...this.createCpuInfo(options),
+            ...(await this.createCpuInfo(options)),
             ...(await this.createMemoryInfo()),
         } as SystemInfo;
     }
 
-    private createCpuInfo(options: { maxUsedCpuRatio: number }) {
-        const ticks = this.getCurrentCpuTicks();
-        const idleTicksDelta = ticks.idle - this.previousTicks!.idle;
-        const totalTicksDelta = ticks.total - this.previousTicks!.total;
-        const usedCpuRatio = totalTicksDelta ? 1 - idleTicksDelta / totalTicksDelta : 0;
-        Object.assign(this.previousTicks, ticks);
+    private async createCpuInfo(options: { maxUsedCpuRatio: number }) {
+        // const ticks = this.getCurrentCpuTicks();
+        // const idleTicksDelta = ticks.idle - this.previousTicks!.idle;
+        // const totalTicksDelta = ticks.total - this.previousTicks!.total;
+        // const usedCpuRatio = totalTicksDelta ? 1 - idleTicksDelta / totalTicksDelta : 0;
+        // Object.assign(this.previousTicks, ticks);
 
-        return {
+        // return {
+        //     cpuCurrentUsage: usedCpuRatio * 100,
+        //     isCpuOverloaded: usedCpuRatio > options.maxUsedCpuRatio,
+        // };
+
+        try {
+          const usedCpuRatio = await this._getCpuInfo()
+
+          return {
             cpuCurrentUsage: usedCpuRatio * 100,
             isCpuOverloaded: usedCpuRatio > options.maxUsedCpuRatio,
-        };
+          };
+      } catch (err) {
+          log.exception(err as Error, 'Cpu snapshot failed.');
+          return {};
+      }
     }
+
+    /**
+     * Helper method for easier mocking.
+     */
+        private async _getCpuInfo() {
+          return getCpuInfo();
+      }
 
     private async createMemoryInfo() {
         try {

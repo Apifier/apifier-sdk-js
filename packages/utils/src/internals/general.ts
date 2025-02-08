@@ -51,10 +51,11 @@ export async function isDocker(forceReset?: boolean): Promise<boolean> {
 export async function isContainerised(forceReset?: boolean): Promise<boolean> {
     const config = Configuration.getGlobalConfig();
     const containerised = config.get('containerised');
-    if (containerised === true || containerised === false) {
+    // if set in config, return value
+    if (containerised !== undefined) {
         return containerised;
     }
-
+     // else check isDocker and the KUBERNETES_SERVICE_HOST env var (should cover most containerised enviroments)
     return (await isDocker(forceReset)) || !!process.env.KUBERNETES_SERVICE_HOST;
 }
 
