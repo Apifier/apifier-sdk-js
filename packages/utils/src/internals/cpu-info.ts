@@ -1,5 +1,5 @@
 import { readFile } from 'node:fs/promises';
-import os from 'node:os'
+import os from 'node:os';
 
 import { getCgroupsVersion, isContainerised } from './general';
 
@@ -189,6 +189,5 @@ export async function getCpuInfo(): Promise<number> {
         return ((containerDelta / systemDelta) * numCpus * 100) / cpuAllowance;
     }
     // bare metal cpu limit
-    const ticks = getCurrentCpuTicks();
-    return ticks
+    return getCurrentCpuTicks();
 }

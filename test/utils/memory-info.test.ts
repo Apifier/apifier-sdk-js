@@ -33,7 +33,7 @@ vitest.mock('node:fs/promises', async (importActual) => {
 });
 
 const isContainerisedSpy = vitest.mocked(isContainerised);
-const getCgroupsVersionSpy = vitest.mocked(getCgroupsVersion)
+const getCgroupsVersionSpy = vitest.mocked(getCgroupsVersion);
 const freememSpy = vitest.mocked(freemem);
 const totalmemSpy = vitest.mocked(totalmem);
 const accessSpy = vitest.mocked(access);
@@ -62,9 +62,8 @@ describe('getMemoryInfo()', () => {
 
     test('works WITHOUT child process inside the container', async () => {
         isContainerisedSpy.mockResolvedValueOnce(true);
-        getCgroupsVersionSpy.mockResolvedValueOnce("V1")
+        getCgroupsVersionSpy.mockResolvedValueOnce('V1');
         accessSpy.mockResolvedValueOnce();
-        
 
         readFileSpy.mockImplementation(async (path) => {
             if (path === '/sys/fs/cgroup/memory/memory.limit_in_bytes') {
@@ -123,7 +122,7 @@ describe('getMemoryInfo()', () => {
     test('works WITH child process inside the container', async () => {
         process.env.CRAWLEE_HEADLESS = '1';
         isContainerisedSpy.mockResolvedValueOnce(true);
-        getCgroupsVersionSpy.mockResolvedValueOnce("V1")
+        getCgroupsVersionSpy.mockResolvedValueOnce('V1');
         accessSpy.mockResolvedValueOnce();
 
         readFileSpy.mockImplementation(async (path) => {
@@ -158,7 +157,7 @@ describe('getMemoryInfo()', () => {
 
     test('works with cgroup V1 with LIMITED memory', async () => {
         isContainerisedSpy.mockResolvedValueOnce(true);
-        getCgroupsVersionSpy.mockResolvedValueOnce("V1")
+        getCgroupsVersionSpy.mockResolvedValueOnce('V1');
         accessSpy.mockResolvedValueOnce();
 
         readFileSpy.mockImplementation(async (path) => {
@@ -183,7 +182,7 @@ describe('getMemoryInfo()', () => {
 
     test('works with cgroup V1 with UNLIMITED memory', async () => {
         isContainerisedSpy.mockResolvedValueOnce(true);
-        getCgroupsVersionSpy.mockResolvedValueOnce("V1")
+        getCgroupsVersionSpy.mockResolvedValueOnce('V1');
         accessSpy.mockResolvedValueOnce();
 
         readFileSpy.mockImplementation(async (path) => {
@@ -210,7 +209,7 @@ describe('getMemoryInfo()', () => {
 
     test('works with cgroup V2 with LIMITED memory', async () => {
         isContainerisedSpy.mockResolvedValueOnce(true);
-        getCgroupsVersionSpy.mockResolvedValueOnce("V2")
+        getCgroupsVersionSpy.mockResolvedValueOnce('V2');
         accessSpy.mockRejectedValueOnce(new Error('ENOENT'));
 
         readFileSpy.mockImplementation(async (path) => {
@@ -235,7 +234,7 @@ describe('getMemoryInfo()', () => {
 
     test('works with cgroup V2 with UNLIMITED memory', async () => {
         isContainerisedSpy.mockResolvedValueOnce(true);
-        getCgroupsVersionSpy.mockResolvedValueOnce("V2")
+        getCgroupsVersionSpy.mockResolvedValueOnce('V2');
         accessSpy.mockRejectedValueOnce(new Error('ENOENT'));
 
         readFileSpy.mockImplementation(async (path) => {

@@ -819,6 +819,7 @@ __metadata:
   resolution: "@crawlee/utils@workspace:packages/utils"
   dependencies:
     "@apify/log": "npm:^2.4.0"
+    "@crawlee/core": "npm:3.12.2"
     "@crawlee/types": "npm:3.12.2"
     "@types/sax": "npm:^1.2.7"
     "@types/whatwg-mimetype": "npm:^3.0.2"
