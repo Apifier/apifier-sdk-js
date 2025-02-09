@@ -91,7 +91,7 @@ export async function getCpuPeriod(cgroupsVersion: string): Promise<number> {
 
 /**
  * Reads the cgroup cpu usage of the container
- * 
+ *
  * @param cgroupsVersion the cGroup version
  * @returns the cpu usage
  * @internal
@@ -118,7 +118,7 @@ export async function getContainerCpuUsage(cgroupsVersion: string): Promise<numb
 
 /**
  * Reads the cgroup cpu usage of the system from cgroup
- * 
+ *
  * @returns the cpu usage
  * @internal
  */
@@ -164,7 +164,6 @@ export async function sampleCpuUsage(cGroupsVersion: string): Promise<CpuSample>
 }
 
 let previousSample: CpuSample = { containerUsage: 0, systemUsage: 0 };
-
 
 /**
  * Gets the cpu usage of the system.

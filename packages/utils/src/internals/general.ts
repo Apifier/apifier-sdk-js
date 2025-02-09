@@ -1,4 +1,4 @@
-import fs  from 'node:fs/promises';
+import fs from 'node:fs/promises';
 import { setTimeout } from 'node:timers/promises';
 
 /**
@@ -57,8 +57,9 @@ let _cgroupsVersion: 'V1' | 'V2';
  * gets the cgroups version by checking for a file at /sys/fs/cgroup/memory
  * @returns "V1" or "V2" for the version
  */
-export async function getCgroupsVersion() {
-    if (_cgroupsVersion) {
+export async function getCgroupsVersion(forceReset?: boolean) {
+    // Parameter forceReset is just internal for unit tests.
+    if (_cgroupsVersion && !forceReset) {
         return _cgroupsVersion;
     }
     _cgroupsVersion = 'V1';

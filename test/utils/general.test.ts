@@ -1,6 +1,6 @@
 import asyncFs from 'node:fs/promises';
 
-import { getCgroupsVersion , isDocker, isContainerised, weightedAvg, sleep, snakeCaseToCamelCase } from '@crawlee/utils';
+import { getCgroupsVersion, isDocker, isContainerised, weightedAvg, sleep, snakeCaseToCamelCase } from '@crawlee/utils';
 
 describe('isDocker()', () => {
     test('works for dockerenv && cgroup', async () => {
@@ -97,7 +97,6 @@ describe('snakeCaseToCamelCase()', () => {
 });
 
 describe('isContainerised()', () => {
-
     afterEach(() => {
         vitest.restoreAllMocks();
         delete process.env.KUBERNETES_SERVICE_HOST;
@@ -137,13 +136,13 @@ describe('getCgroupsVersion()', () => {
 
     test('returns V1 when access to /sys/fs/cgroup/memory/ succeeds', async () => {
         vitest.spyOn(asyncFs, 'access').mockResolvedValue();
-        const version = await getCgroupsVersion();
+        const version = await getCgroupsVersion(true);
         expect(version).toBe('V1');
     });
 
     test('returns V2 when access to /sys/fs/cgroup/memory/ fails', async () => {
         vitest.spyOn(asyncFs, 'access').mockRejectedValue(new Error('Not found'));
-        const version = await getCgroupsVersion();
+        const version = await getCgroupsVersion(true);
         expect(version).toBe('V2');
     });
 });
