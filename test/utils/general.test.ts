@@ -1,7 +1,6 @@
 import asyncFs from 'node:fs/promises';
-import type { IncomingMessage } from 'node:http';
 
-import { isDocker, weightedAvg, sleep, snakeCaseToCamelCase } from '@crawlee/utils';
+import { getCgroupsVersion , isDocker, isContainerised, weightedAvg, sleep, snakeCaseToCamelCase } from '@crawlee/utils';
 
 describe('isDocker()', () => {
     test('works for dockerenv && cgroup', async () => {
@@ -94,5 +93,57 @@ describe('snakeCaseToCamelCase()', () => {
         Object.entries(tests).forEach(([snakeCase, camelCase]) => {
             expect(snakeCaseToCamelCase(snakeCase)).toEqual(camelCase);
         });
+    });
+});
+
+describe('isContainerised()', () => {
+
+    afterEach(() => {
+        vitest.restoreAllMocks();
+        delete process.env.KUBERNETES_SERVICE_HOST;
+        delete process.env.CRAWLEE_CONTAINERISED;
+    });
+
+    test('returns true when isDocker returns true', async () => {
+        // make isDocker return true
+        const statMock = vitest.spyOn(asyncFs, 'stat').mockImplementationOnce(async () => null as any);
+        const result = await isContainerised(true);
+        expect(result).toBe(true);
+    });
+
+    test('returns true when KUBERNETES_SERVICE_HOST environment variable is set', async () => {
+        process.env.KUBERNETES_SERVICE_HOST = 'some-host';
+        const result = await isContainerised(true);
+        expect(result).toBe(true);
+    });
+
+    test('returns true when CRAWLEE_CONTAINERISED environment variable is set', async () => {
+        process.env.CRAWLEE_CONTAINERISED = '1';
+        const result = await isContainerised(true);
+        expect(result).toBe(true);
+    });
+
+    test('returns false when neither isDocker returns true nor env variables are set', async () => {
+        const result = await isContainerised(true);
+        expect(result).toBe(false);
+    });
+});
+
+describe('getCgroupsVersion()', () => {
+    // Reset the module cache so that _cgroupsVersion is not retained across tests.
+    beforeEach(() => {
+        vitest.resetModules();
+    });
+
+    test('returns V1 when access to /sys/fs/cgroup/memory/ succeeds', async () => {
+        vitest.spyOn(asyncFs, 'access').mockResolvedValue();
+        const version = await getCgroupsVersion();
+        expect(version).toBe('V1');
+    });
+
+    test('returns V2 when access to /sys/fs/cgroup/memory/ fails', async () => {
+        vitest.spyOn(asyncFs, 'access').mockRejectedValue(new Error('Not found'));
+        const version = await getCgroupsVersion();
+        expect(version).toBe('V2');
     });
 });

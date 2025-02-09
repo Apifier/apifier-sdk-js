@@ -249,13 +249,7 @@ export class Configuration {
         CRAWLEE_PERSIST_STORAGE: 'persistStorage',
     };
 
-    protected static BOOLEAN_VARS = [
-        'purgeOnStart',
-        'headless',
-        'xvfb',
-        'disableBrowserSandbox',
-        'persistStorage',
-    ];
+    protected static BOOLEAN_VARS = ['purgeOnStart', 'headless', 'xvfb', 'disableBrowserSandbox', 'persistStorage'];
 
     protected static INTEGER_VARS = ['memoryMbytes', 'persistStateIntervalMillis', 'systemInfoIntervalMillis'];
 

@@ -27,10 +27,11 @@ const previousTicks = { idle: 0, total: 0 };
  * Used in
  *  - AWS Lambda
  *  - Containers without a cGroup quota
- *  - Uncontainerised enviroments
- * @returns
+ *  - Uncontainerised environments
+ * @returns a number between 0 and 1 for the cpu load
+ * @internal
  */
-function getCurrentCpuTicks() {
+export function getCurrentCpuTicks() {
     const cpusCores = os.cpus();
     const ticks = cpusCores.reduce(
         (acc, cpu) => {
@@ -48,13 +49,14 @@ function getCurrentCpuTicks() {
 }
 
 /**
- * Reads the cgroup CPU quota.
+ * Reads the cgroup cpu quota.
  * In V1, a quota of -1 means “unlimited.”
  * In V2, a first field of "max" means unlimited.
  * @param cgroupsVersion the cGroup version
  * @returns The Cpu Quota
+ * @internal
  */
-async function getCpuQuota(cgroupsVersion: string): Promise<number | null> {
+export async function getCpuQuota(cgroupsVersion: string): Promise<number | null> {
     if (cgroupsVersion === 'V1') {
         const quotaStr = await readFile(CPU_FILE_PATHS.QUOTA.V1, 'utf8');
         const quota = parseInt(quotaStr.trim(), 10);
@@ -70,11 +72,12 @@ async function getCpuQuota(cgroupsVersion: string): Promise<number | null> {
 }
 
 /**
- * Reads the cgroup CPU period.
+ * Reads the cgroup cpu period.
  * @param cgroupsVersion the cGroup version
- * @returns The Cpu Quota
+ * @returns The Cpu quota
+ * @internal
  */
-async function getCpuPeriod(cgroupsVersion: string): Promise<number> {
+export async function getCpuPeriod(cgroupsVersion: string): Promise<number> {
     if (cgroupsVersion === 'V1') {
         const quotaStr = await readFile(CPU_FILE_PATHS.PERIOD.V1, 'utf8');
         const quota = parseInt(quotaStr.trim(), 10);
@@ -87,11 +90,13 @@ async function getCpuPeriod(cgroupsVersion: string): Promise<number> {
 }
 
 /**
- * Reads the cpu usage of the container
+ * Reads the cgroup cpu usage of the container
+ * 
  * @param cgroupsVersion the cGroup version
  * @returns the cpu usage
+ * @internal
  */
-async function getContainerCpuUsage(cgroupsVersion: string): Promise<number> {
+export async function getContainerCpuUsage(cgroupsVersion: string): Promise<number> {
     if (cgroupsVersion === 'V1') {
         const data = await readFile(CPU_FILE_PATHS.STAT.V1, 'utf8');
         return Number(data.trim());
@@ -112,10 +117,12 @@ async function getContainerCpuUsage(cgroupsVersion: string): Promise<number> {
 }
 
 /**
- * Reads the cpu usage of the system from cgroup
+ * Reads the cgroup cpu usage of the system from cgroup
+ * 
  * @returns the cpu usage
+ * @internal
  */
-async function getSystemCpuUsage() {
+export async function getSystemCpuUsage() {
     const statData = await readFile('/proc/stat', 'utf8');
     const lines = statData.split('\n');
     for (const line of lines) {
@@ -134,7 +141,10 @@ async function getSystemCpuUsage() {
     throw new Error('no cpu line'); // shouldnt ever happen
 }
 
-interface CpuSample {
+/**
+ * a cpu sample with the container usage and system usage
+ */
+export interface CpuSample {
     containerUsage: number; // in nanoseconds
     systemUsage: number; // in nanoseconds
 }
@@ -143,8 +153,9 @@ interface CpuSample {
  * Takes a CPU usage sample for both the container and the system.
  *
  * @returns An object containing the container and system CPU usage.
+ * @internal
  */
-async function sampleCpuUsage(cGroupsVersion: string): Promise<CpuSample> {
+export async function sampleCpuUsage(cGroupsVersion: string): Promise<CpuSample> {
     const [containerUsage, systemUsage] = await Promise.all([
         getContainerCpuUsage(cGroupsVersion),
         getSystemCpuUsage(),
@@ -154,6 +165,12 @@ async function sampleCpuUsage(cGroupsVersion: string): Promise<CpuSample> {
 
 let previousSample: CpuSample = { containerUsage: 0, systemUsage: 0 };
 
+
+/**
+ * Gets the cpu usage of the system.
+ * If the crawler is running in a containerised environment, it will respect any set cgroup limits.
+ * @returns a number between 0 and 1 for the cpu load
+ */
 export async function getCpuInfo(): Promise<number> {
     const isLambdaEnvironment = process.platform === 'linux' && !!process.env.AWS_LAMBDA_FUNCTION_MEMORY_SIZE;
 
