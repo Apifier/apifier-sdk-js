@@ -6,7 +6,6 @@ import { EventManager, EventType } from './event_manager';
 import type { SystemInfo } from '../autoscaling';
 
 export class LocalEventManager extends EventManager {
-    // private previousTicks = { idle: 0, total: 0 };
 
     /**
      * Initializes the EventManager and sets up periodic `systemInfo` and `persistState` events.
