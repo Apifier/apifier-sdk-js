@@ -74,7 +74,7 @@ export async function getCpuQuota(cgroupsVersion: string): Promise<number | null
 /**
  * Reads the cgroup cpu period.
  * @param cgroupsVersion the cGroup version
- * @returns The Cpu quota
+ * @returns The Cpu quota period
  * @internal
  */
 export async function getCpuPeriod(cgroupsVersion: string): Promise<number> {
