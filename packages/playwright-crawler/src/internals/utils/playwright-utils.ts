@@ -223,6 +223,8 @@ export async function gotoExtended(
             } catch (error) {
                 log.debug('Error inside request interceptor', { error });
             }
+
+            return undefined;
         };
 
         await page.route('**/*', interceptRequestHandler);
@@ -297,7 +299,7 @@ export async function blockRequests(page: Page, options: BlockRequestsOptions = 
 
         await client.send('Network.enable');
         await client.send('Network.setBlockedURLs', { urls: patternsToBlock });
-    } catch (error) {
+    } catch {
         log.warning('blockRequests() helper is incompatible with non-Chromium browsers.');
     }
 }

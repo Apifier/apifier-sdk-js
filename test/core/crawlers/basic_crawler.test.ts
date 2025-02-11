@@ -1393,7 +1393,7 @@ describe('BasicCrawler', () => {
         const payload: Dictionary[] = [{ foo: 'bar', baz: 123 }];
         const getPayload: (id: string) => Dictionary[] = (id) => [{ foo: id }];
 
-        const tmpDir: string = `${__dirname}/tmp/foo/bar`;
+        const tmpDir = `${__dirname}/tmp/foo/bar`;
 
         beforeAll(async () => {
             await rm(tmpDir, { recursive: true, force: true });

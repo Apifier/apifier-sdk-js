@@ -463,9 +463,9 @@ describe('BrowserCrawler', () => {
             // TODO this test is flaky in CI and we need some more info to debug why.
             if (cookie !== 'TEST=12321312312') {
                 // for some reason, the CI failures report the first cookie to be just empty string
-                // eslint-disable-next-line no-console
+
                 console.log('loadedCookies:');
-                // eslint-disable-next-line no-console
+
                 console.dir(loadedCookies);
             }
 
@@ -978,7 +978,7 @@ describe('BrowserCrawler', () => {
                 expect(crawlingContext.session).toBeInstanceOf(Session);
                 expect(typeof crawlingContext.page).toBe('object');
                 expect(crawlingContext.crawler).toBeInstanceOf(BrowserCrawlerTest);
-                expect(crawlingContext.hasOwnProperty('response')).toBe(true);
+                expect(Object.hasOwn(crawlingContext, 'response')).toBe(true);
 
                 throw new Error('some error');
             };
@@ -991,7 +991,7 @@ describe('BrowserCrawler', () => {
                 expect(typeof crawlingContext.page).toBe('object');
                 expect(crawlingContext.crawler).toBeInstanceOf(BrowserCrawlerTest);
                 expect(crawlingContext.crawler.browserPool).toBeInstanceOf(BrowserPool);
-                expect(crawlingContext.hasOwnProperty('response')).toBe(true);
+                expect(Object.hasOwn(crawlingContext, 'response')).toBe(true);
 
                 expect(crawlingContext.error).toBeInstanceOf(Error);
                 expect(error).toBeInstanceOf(Error);

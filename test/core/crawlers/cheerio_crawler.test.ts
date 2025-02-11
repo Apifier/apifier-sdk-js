@@ -921,9 +921,8 @@ describe('CheerioCrawler', () => {
                 // TODO this test is flaky in CI and we need some more info to debug why.
                 // @ts-expect-error Accessing private prop
                 if (session.errorScore !== 1) {
-                    // eslint-disable-next-line no-console
                     console.log('SESSIONS:');
-                    // eslint-disable-next-line no-console
+
                     console.dir(sessions);
                 }
 

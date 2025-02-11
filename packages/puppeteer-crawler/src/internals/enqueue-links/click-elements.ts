@@ -351,6 +351,8 @@ function createInterceptRequestHandler(page: Page, requests: Set<string>): (req:
         } else {
             await req.abort('aborted'); // Prevents navigation by js
         }
+
+        return undefined;
     };
 }
 

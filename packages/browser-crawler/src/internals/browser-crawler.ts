@@ -828,7 +828,7 @@ export async function browserCrawlerEnqueueLinks({
  * @ignore
  */
 export async function extractUrlsFromPage(
-    // eslint-disable-next-line @typescript-eslint/ban-types
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
     page: { $$eval: Function },
     selector: string,
     baseUrl: string,

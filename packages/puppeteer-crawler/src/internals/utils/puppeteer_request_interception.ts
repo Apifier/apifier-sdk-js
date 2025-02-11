@@ -5,6 +5,8 @@ import type { Dictionary } from '@crawlee/utils';
 import ow from 'ow';
 import type { HTTPRequest, HTTPRequest as PuppeteerRequest, Page } from 'puppeteer';
 
+export type InterceptHandler = (request: PuppeteerRequest) => unknown;
+
 // We use weak maps here so that the content gets discarded after page gets closed.
 const pageInterceptRequestHandlersMap: WeakMap<Page, InterceptHandler[]> = new WeakMap(); // Maps page to an array of request interception handlers.
 const pageInterceptRequestMasterHandlerMap = new WeakMap(); // Maps page to master request interception handler.
@@ -33,8 +35,6 @@ class ObservableSet<T> extends EventEmitter {
         return this.set.size;
     }
 }
-
-export type InterceptHandler = (request: PuppeteerRequest) => unknown;
 
 /**
  * Makes all request headers capitalized to more look like in browser
@@ -65,7 +65,7 @@ function browserifyHeaders(headers: Record<string, string>): Record<string, stri
 async function handleRequest(request: PuppeteerRequest, interceptRequestHandlers?: InterceptHandler[]): Promise<void> {
     // If there are no intercept handlers, it means that request interception is not enabled (anymore)
     // and therefore .abort() .respond() and .continue() would throw and crash the process.
-    if (!interceptRequestHandlers?.length) return;
+    if (!interceptRequestHandlers?.length) return undefined;
 
     let wasAborted = false;
     let wasResponded = false;
@@ -101,7 +101,7 @@ async function handleRequest(request: PuppeteerRequest, interceptRequestHandlers
         }
 
         // If request was aborted or responded then we can finish immediately.
-        if (wasAborted || wasResponded) return;
+        if (wasAborted || wasResponded) return undefined;
     }
 
     return originalContinue(accumulatedOverrides);

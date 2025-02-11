@@ -107,7 +107,6 @@ export class PlaywrightController extends BrowserController<
 
                         const { remoteIPAddress } = response;
                         if (remoteIPAddress && remoteIPAddress !== proxyip) {
-                            // eslint-disable-next-line no-console
                             console.warn(
                                 `Request to ${response.url} was through ${remoteIPAddress} instead of ${proxyip}`,
                             );

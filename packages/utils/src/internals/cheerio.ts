@@ -93,7 +93,7 @@ export function htmlToText(htmlOrCheerioElement: string | CheerioRoot): string {
  * @throws when a relative URL is encountered with no baseUrl set
  * @return An array of absolute URLs
  */
-export function extractUrlsFromCheerio($: CheerioAPI, selector: string = 'a', baseUrl: string = ''): string[] {
+export function extractUrlsFromCheerio($: CheerioAPI, selector = 'a', baseUrl = ''): string[] {
     const base = $('base').attr('href');
     const absoluteBaseUrl = base && tryAbsoluteURL(base, baseUrl);
 

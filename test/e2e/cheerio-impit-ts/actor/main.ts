@@ -1,4 +1,5 @@
-import { CheerioCrawler, Dictionary } from '@crawlee/cheerio';
+import type { Dictionary } from '@crawlee/cheerio';
+import { CheerioCrawler } from '@crawlee/cheerio';
 import { ImpitHttpClient, Browser } from '@crawlee/impit-client';
 import { Actor } from 'apify';
 

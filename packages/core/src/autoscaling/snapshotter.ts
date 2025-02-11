@@ -221,7 +221,9 @@ export class Snapshotter {
         this.events.off(EventType.SYSTEM_INFO, this._snapshotCpu);
         this.events.off(EventType.SYSTEM_INFO, this._snapshotMemory);
         // Allow microtask queue to unwind before stop returns.
-        await new Promise((resolve) => setImmediate(resolve));
+        await new Promise((resolve) => {
+            setImmediate(resolve);
+        });
     }
 
     /**
