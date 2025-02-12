@@ -1,14 +1,11 @@
 import { execSync } from 'node:child_process';
-import { access, readFile } from 'node:fs/promises';
+import { readFile } from 'node:fs/promises';
 import { freemem, totalmem } from 'node:os';
-import util from 'node:util';
 
 import log from '@apify/log';
-// @ts-expect-error We need to add typings for @apify/ps-tree
-import psTree from '@apify/ps-tree';
-import type { Dictionary } from '@crawlee/types';
 
-import { isDocker } from './general';
+import { getCgroupsVersion, isContainerised } from './general';
+import { psTree } from './psTree';
 
 const MEMORY_FILE_PATHS = {
     TOTAL: {
@@ -44,20 +41,18 @@ export interface MemoryInfo {
 /**
  * Returns memory statistics of the process and the system, see {@apilink MemoryInfo}.
  *
- * If the process runs inside of Docker, the `getMemoryInfo` gets container memory limits,
+ * If the process runs inside of a container, the `getMemoryInfo` gets container memory limits,
  * otherwise it gets system memory limits.
  *
  * Beware that the function is quite inefficient because it spawns a new process.
  * Therefore you shouldn't call it too often, like more than once per second.
  */
 export async function getMemoryInfo(): Promise<MemoryInfo> {
-    const psTreePromised = util.promisify(psTree);
-
     // lambda does *not* have `ps` and other command line tools
     // required to extract memory usage.
     const isLambdaEnvironment = process.platform === 'linux' && !!process.env.AWS_LAMBDA_FUNCTION_MEMORY_SIZE;
 
-    const isDockerVar = !isLambdaEnvironment && (await isDocker());
+    const isContainerisedVar = !isLambdaEnvironment && (await isContainerised());
 
     let mainProcessBytes = -1;
     let childProcessesBytes = 0;
@@ -74,20 +69,19 @@ export async function getMemoryInfo(): Promise<MemoryInfo> {
         childProcessesBytes = +values[19] * 1000 - mainProcessBytes;
     } else {
         // Query both root and child processes
-        const processes = await psTreePromised(process.pid, true);
+        const processes = await psTree(process.pid, true);
 
-        processes.forEach((rec: Dictionary<string>) => {
-            // Skip the 'ps' or 'wmic' commands used by ps-tree to query the processes
-            if (rec.COMMAND === 'ps' || rec.COMMAND === 'WMIC.exe') {
+        processes.forEach((rec) => {
+            // Skip the 'ps' or 'powershell' commands used by psTree to query the processes
+            if (rec.COMMAND === 'ps' || rec.COMMAND === 'powershell.exe') {
                 return;
             }
-            const bytes = parseInt(rec.RSS, 10);
             // Obtain main process' memory separately
             if (rec.PID === `${process.pid}`) {
-                mainProcessBytes = bytes;
+                mainProcessBytes = rec.RSS;
                 return;
             }
-            childProcessesBytes += bytes;
+            childProcessesBytes += rec.RSS;
         });
     }
 
@@ -102,17 +96,10 @@ export async function getMemoryInfo(): Promise<MemoryInfo> {
         freeBytes = totalBytes - usedBytes;
 
         log.debug(`lambda size of ${totalBytes} with ${freeBytes} free bytes`);
-    } else if (isDockerVar) {
-        // When running inside Docker container, use container memory limits
+    } else if (isContainerisedVar) {
+        // When running inside a container, use container memory limits
 
-        // Check whether cgroups V1 or V2 is used
-        let cgroupsVersion: keyof typeof MEMORY_FILE_PATHS.TOTAL = 'V1';
-        try {
-            // If this directory does not exists, assume docker is using cgroups V2
-            await access('/sys/fs/cgroup/memory/');
-        } catch {
-            cgroupsVersion = 'V2';
-        }
+        const cgroupsVersion = await getCgroupsVersion();
 
         try {
             let [totalBytesStr, usedBytesStr] = await Promise.all([
@@ -140,7 +127,7 @@ export async function getMemoryInfo(): Promise<MemoryInfo> {
         } catch (err) {
             // log.deprecated logs a warning only once
             log.deprecated(
-                'Your environment is Docker, but your system does not support memory cgroups. ' +
+                'Your environment is containerised, but your system does not support memory cgroups. ' +
                     "If you're running containers with limited memory, memory auto-scaling will not work properly.\n\n" +
                     `Cause: ${(err as Error).message}`,
             );

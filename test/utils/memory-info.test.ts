@@ -2,7 +2,7 @@ import { readFile, access } from 'node:fs/promises';
 import { freemem, totalmem } from 'node:os';
 
 import { launchPuppeteer } from '@crawlee/puppeteer';
-import { isDocker, getMemoryInfo } from '@crawlee/utils';
+import { getCgroupsVersion, getMemoryInfo, isContainerised } from '@crawlee/utils';
 
 vitest.mock('node:os', async (importActual) => {
     const originalOs: typeof import('node:os') = await importActual();
@@ -18,7 +18,8 @@ vitest.mock('@crawlee/utils/src/internals/general', async (importActual) => {
 
     return {
         ...original,
-        isDocker: vitest.fn(),
+        isContainerised: vitest.fn(),
+        getCgroupsVersion: vitest.fn(),
     };
 });
 
@@ -31,7 +32,8 @@ vitest.mock('node:fs/promises', async (importActual) => {
     };
 });
 
-const isDockerSpy = vitest.mocked(isDocker);
+const isContainerisedSpy = vitest.mocked(isContainerised);
+const getCgroupsVersionSpy = vitest.mocked(getCgroupsVersion);
 const freememSpy = vitest.mocked(freemem);
 const totalmemSpy = vitest.mocked(totalmem);
 const accessSpy = vitest.mocked(access);
@@ -40,7 +42,7 @@ const readFileSpy = vitest.mocked(readFile);
 
 describe('getMemoryInfo()', () => {
     test('works WITHOUT child process outside the container', async () => {
-        isDockerSpy.mockResolvedValueOnce(false);
+        isContainerisedSpy.mockResolvedValueOnce(false);
         freememSpy.mockReturnValueOnce(222);
         totalmemSpy.mockReturnValueOnce(333);
 
@@ -59,7 +61,8 @@ describe('getMemoryInfo()', () => {
     });
 
     test('works WITHOUT child process inside the container', async () => {
-        isDockerSpy.mockResolvedValueOnce(true);
+        isContainerisedSpy.mockResolvedValueOnce(true);
+        getCgroupsVersionSpy.mockResolvedValueOnce('V1');
         accessSpy.mockResolvedValueOnce();
 
         readFileSpy.mockImplementation(async (path) => {
@@ -89,7 +92,7 @@ describe('getMemoryInfo()', () => {
     // this test hangs because we launch the browser, closing is apparently not enough?
     test('works WITH child process outside the container', async () => {
         process.env.CRAWLEE_HEADLESS = '1';
-        isDockerSpy.mockResolvedValueOnce(false);
+        isContainerisedSpy.mockResolvedValueOnce(false);
         freememSpy.mockReturnValueOnce(222);
         totalmemSpy.mockReturnValueOnce(333);
 
@@ -118,7 +121,8 @@ describe('getMemoryInfo()', () => {
     // this test hangs because we launch the browser, closing is apparently not enough?
     test('works WITH child process inside the container', async () => {
         process.env.CRAWLEE_HEADLESS = '1';
-        isDockerSpy.mockResolvedValueOnce(true);
+        isContainerisedSpy.mockResolvedValueOnce(true);
+        getCgroupsVersionSpy.mockResolvedValueOnce('V1');
         accessSpy.mockResolvedValueOnce();
 
         readFileSpy.mockImplementation(async (path) => {
@@ -152,7 +156,8 @@ describe('getMemoryInfo()', () => {
     });
 
     test('works with cgroup V1 with LIMITED memory', async () => {
-        isDockerSpy.mockResolvedValueOnce(true);
+        isContainerisedSpy.mockResolvedValueOnce(true);
+        getCgroupsVersionSpy.mockResolvedValueOnce('V1');
         accessSpy.mockResolvedValueOnce();
 
         readFileSpy.mockImplementation(async (path) => {
@@ -176,7 +181,8 @@ describe('getMemoryInfo()', () => {
     });
 
     test('works with cgroup V1 with UNLIMITED memory', async () => {
-        isDockerSpy.mockResolvedValueOnce(true);
+        isContainerisedSpy.mockResolvedValueOnce(true);
+        getCgroupsVersionSpy.mockResolvedValueOnce('V1');
         accessSpy.mockResolvedValueOnce();
 
         readFileSpy.mockImplementation(async (path) => {
@@ -202,7 +208,8 @@ describe('getMemoryInfo()', () => {
     });
 
     test('works with cgroup V2 with LIMITED memory', async () => {
-        isDockerSpy.mockResolvedValueOnce(true);
+        isContainerisedSpy.mockResolvedValueOnce(true);
+        getCgroupsVersionSpy.mockResolvedValueOnce('V2');
         accessSpy.mockRejectedValueOnce(new Error('ENOENT'));
 
         readFileSpy.mockImplementation(async (path) => {
@@ -226,7 +233,8 @@ describe('getMemoryInfo()', () => {
     });
 
     test('works with cgroup V2 with UNLIMITED memory', async () => {
-        isDockerSpy.mockResolvedValueOnce(true);
+        isContainerisedSpy.mockResolvedValueOnce(true);
+        getCgroupsVersionSpy.mockResolvedValueOnce('V2');
         accessSpy.mockRejectedValueOnce(new Error('ENOENT'));
 
         readFileSpy.mockImplementation(async (path) => {

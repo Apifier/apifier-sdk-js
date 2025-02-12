@@ -44,6 +44,35 @@ export async function isDocker(forceReset?: boolean): Promise<boolean> {
 }
 
 /**
+ * Returns a `Promise` that resolves to true if the code is running in a containerised environment.
+ * Returns true if the CRAWLEE_CONTAINERISED environment variable is set.
+ */
+export async function isContainerised(forceReset?: boolean): Promise<boolean> {
+    // Check isDocker the KUBERNETES_SERVICE_HOST env var (should cover most containerised environments).
+    return (await isDocker(forceReset)) || !!process.env.KUBERNETES_SERVICE_HOST || !!process.env.CRAWLEE_CONTAINERISED;
+}
+
+let _cgroupsVersion: 'V1' | 'V2';
+/**
+ * gets the cgroups version by checking for a file at /sys/fs/cgroup/memory
+ * @returns "V1" or "V2" for the version
+ */
+export async function getCgroupsVersion(forceReset?: boolean) {
+    // Parameter forceReset is just internal for unit tests.
+    if (_cgroupsVersion && !forceReset) {
+        return _cgroupsVersion;
+    }
+    _cgroupsVersion = 'V1';
+    try {
+        // If this directory does not exists, assume the container is using cgroups V2
+        await fs.access('/sys/fs/cgroup/memory/');
+    } catch (e) {
+        _cgroupsVersion = 'V2';
+    }
+    return _cgroupsVersion;
+}
+
+/**
  * Computes a weighted average of an array of numbers, complemented by an array of weights.
  * @ignore
  */
